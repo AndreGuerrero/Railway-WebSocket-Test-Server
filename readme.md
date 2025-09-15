@@ -1,4 +1,4 @@
-# 🔐 Secured Railway WebSocket Test Server
+# Railway WebSocket Test Server
 
 A secured WebSocket server with authentication, rate limiting, connection management, and cost controls for testing WebSocket connections through CDN services like Fastly.
 This project is ready to deploy to Railway and also comes with a websockets connection testing client.

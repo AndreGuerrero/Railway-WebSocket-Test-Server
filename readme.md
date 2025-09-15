@@ -1,41 +1,21 @@
 # 🔐 Secured Railway WebSocket Test Server
 
-A production-ready, secured WebSocket server with authentication, rate limiting, connection management, and cost controls for testing WebSocket connections through CDN services like Fastly.
-
-## 🛡️ Security Features
-
-- ✅ **Token Authentication** - Secure access with configurable tokens
-- ✅ **Connection Limits** - Prevent server overload (default: 10 max connections)
-- ✅ **Connection Timeouts** - Auto-disconnect idle connections (default: 5 minutes)
-- ✅ **Rate Limiting** - Prevent message spam (default: 10 messages/minute per IP)
-- ✅ **IP Whitelist Support** - Restrict access to specific IPs (optional)
-- ✅ **Auto-shutdown Timer** - Prevent runaway costs (default: 2 hours)
-- ✅ **Comprehensive Logging** - Monitor all connections and security events
-- ✅ **Admin Endpoints** - Remote monitoring and shutdown capabilities
-
-## 💰 Cost Control Features
-
-- ✅ **Auto-shutdown after X hours** to prevent excessive Railway bills
-- ✅ **Connection limits** to control resource usage
-- ✅ **Rate limiting** to prevent abuse
-- ✅ **Health monitoring** with usage statistics
-- ✅ **Manual shutdown endpoint** for emergency stops
-
-## 🚀 Quick Deploy to Railway
+A secured WebSocket server with authentication, rate limiting, connection management, and cost controls for testing WebSocket connections through CDN services like Fastly.
+This project is ready to deploy to Railway and also comes with a websockets connection testing client.
 
 ### 1. Create Repository & Deploy
 
 ```bash
-# Create new repository
-git init
-git add .
-git commit -m "Initial secured WebSocket server"
-git branch -M main
-git remote add origin https://github.com/yourusername/secured-websocket-server.git
-git push -u origin main
+#Clone this repository
+git clone https://github.com/AndreGuerrero/Railway-WebSocket-Test-Server.git
 
 # Deploy on Railway
 # Go to railway.app → Sign in → New Project → Deploy from GitHub repo
+
+#Or deploy locally
+cd Railway-WebSocket-Test-Server
+npm install
+node server.js
 ```
 
 ### 2. Configure Environment Variables
@@ -186,28 +166,16 @@ CONNECTION_TIMEOUT_MINUTES=3
 RATE_LIMIT_MESSAGES=5
 AUTO_SHUTDOWN_HOURS=1
 ```
+## 🛡️ Security anf Cost Control Features
 
-### Production Setup
-```bash
-# More restrictive settings
-AUTH_TOKEN=super-secure-random-token-here
-MAX_CONNECTIONS=20
-CONNECTION_TIMEOUT_MINUTES=10
-RATE_LIMIT_MESSAGES=20
-AUTO_SHUTDOWN_HOURS=4
-ENABLE_IP_WHITELIST=true
-IP_WHITELIST=203.0.113.1,203.0.113.2,203.0.113.3
-```
-
-### Development Setup
-```bash
-# More permissive for testing
-AUTH_TOKEN=dev123
-MAX_CONNECTIONS=50
-CONNECTION_TIMEOUT_MINUTES=30
-RATE_LIMIT_MESSAGES=100
-ENABLE_AUTO_SHUTDOWN=false
-```
+- ✅ **Token Authentication** - Secure access with configurable tokens
+- ✅ **Connection Limits** - Prevent server overload (default: 10 max connections)
+- ✅ **Connection Timeouts** - Auto-disconnect idle connections (default: 5 minutes)
+- ✅ **Rate Limiting** - Prevent message spam (default: 10 messages/minute per IP)
+- ✅ **IP Whitelist Support** - Restrict access to specific IPs (optional)
+- ✅ **Auto-shutdown Timer** - Prevent runaway costs (default: 2 hours)
+- ✅ **Comprehensive Logging** - Monitor all connections and security events
+- ✅ **Admin Endpoints** - Remote monitoring and shutdown capabilities
 
 ## 🚨 Security Events Logged
 
@@ -219,21 +187,6 @@ The server logs all security-related events:
 - ⏰ **Connection timeouts** and cleanup
 - 🔄 **Auto-shutdown events** and triggers
 - 📊 **Connection statistics** and usage patterns
-
-## 💡 Best Practices
-
-### For Testing
-1. **Use short auto-shutdown times** (1-2 hours) to prevent forgotten instances
-2. **Set conservative connection limits** (5-10) for basic testing
-3. **Use strong tokens** even for testing environments
-4. **Monitor the health endpoint** regularly during tests
-
-### For Production Use
-1. **Use environment variables** for all sensitive configuration
-2. **Enable IP whitelisting** if you know your client IPs
-3. **Set appropriate rate limits** based on your use case
-4. **Monitor Railway usage** and costs regularly
-5. **Use admin endpoints** for remote management
 
 ## 🔗 Fastly CDN Integration
 
@@ -276,29 +229,6 @@ curl "https://your-app.railway.app/admin/stats?token=your-token"
 curl "https://your-app.railway.app/admin/shutdown?token=your-token"
 ```
 
-### Common Issues
-
-| Issue | Cause | Solution |
-|-------|-------|----------|
-| Connection rejected | Invalid token | Check AUTH_TOKEN environment variable |
-| Rate limit exceeded | Too many messages | Wait 1 minute or increase RATE_LIMIT_MESSAGES |
-| Connection timeout | Idle connection | Reconnect or increase CONNECTION_TIMEOUT_MINUTES |
-| Server unavailable | Auto-shutdown triggered | Redeploy or increase AUTO_SHUTDOWN_HOURS |
-
-## 💸 Cost Optimization
-
-Railway charges based on:
-- **vCPU usage** (per second)
-- **Memory usage** (per second)
-- **Network bandwidth** (per GB)
-
-To minimize costs:
-1. **Enable auto-shutdown** for testing environments
-2. **Set low connection limits** to reduce memory usage
-3. **Use rate limiting** to prevent bandwidth abuse
-4. **Monitor usage** via health endpoint
-5. **Shutdown manually** when not in use
-
 ## 🏗️ File Structure
 
 ```
@@ -309,14 +239,3 @@ project/
 │   └── index.html     # Secured test client with auth
 └── README.md         # This documentation
 ```
-
-## 🎯 Next Steps
-
-After deployment:
-1. ✅ **Test authentication** with your token
-2. ✅ **Verify security limits** work as expected
-3. ✅ **Configure Fastly** to proxy to your Railway endpoint
-4. ✅ **Monitor costs** via Railway dashboard
-5. ✅ **Set up alerts** for usage thresholds
-
-Your secure WebSocket server is now ready for production testing with CDN integration! 🚀

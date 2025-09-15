@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Railway WebSocket Test Client</title>
+    <title>🔐 Secured Railway WebSocket Test Client</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            max-width: 800px;
+            max-width: 900px;
             margin: 0 auto;
             padding: 20px;
             background: #f5f5f5;
@@ -33,17 +33,55 @@
         .disconnected { background: #f8d7da; color: #721c24; }
         .connecting { background: #fff3cd; color: #856404; }
         
+        .auth-section {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #007bff;
+        }
+        
+        .limits-info {
+            background: #d1ecf1;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid #17a2b8;
+        }
+        .limits-info h4 {
+            margin: 0 0 10px 0;
+            color: #0c5460;
+        }
+        .limits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .limit-item {
+            background: rgba(255,255,255,0.7);
+            padding: 8px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
         .input-group {
             display: flex;
             gap: 10px;
             margin-bottom: 20px;
+            align-items: center;
         }
-        input[type="text"] {
+        input[type="text"], input[type="password"] {
             flex: 1;
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 4px;
             font-size: 14px;
+        }
+        label {
+            font-weight: bold;
+            min-width: 60px;
         }
         button {
             padding: 10px 20px;
@@ -61,7 +99,7 @@
         .messages {
             border: 1px solid #ddd;
             border-radius: 4px;
-            height: 300px;
+            height: 350px;
             overflow-y: auto;
             padding: 15px;
             background: #fafafa;
@@ -76,6 +114,8 @@
         .sent { background: #e3f2fd; }
         .received { background: #f3e5f5; }
         .system { background: #fff3e0; }
+        .error { background: #ffebee; border-left: 3px solid #f44336; }
+        .welcome { background: #e8f5e8; border-left: 3px solid #4caf50; }
         
         .controls {
             display: flex;
@@ -91,43 +131,121 @@
             margin-top: 20px;
             font-size: 14px;
         }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.7);
+            padding: 8px;
+            border-radius: 3px;
+            text-align: center;
+        }
+        .stat-value {
+            font-weight: bold;
+            font-size: 16px;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔌 Railway WebSocket Test Client</h1>
+        <h1>🔐 Secured Railway WebSocket Test Client</h1>
         
         <div id="status" class="status disconnected">
             Status: Disconnected
         </div>
         
+        <div class="auth-section">
+            <div class="input-group">
+                <label for="tokenInput">🔑 Token:</label>
+                <input type="password" id="tokenInput" placeholder="Enter authentication token..." value="test123">
+                <small style="color: #666;">Default: test123</small>
+            </div>
+        </div>
+        
+        <div id="serverLimits" class="limits-info" style="display: none;">
+            <h4>📊 Server Configuration & Limits</h4>
+            <div class="limits-grid">
+                <div class="limit-item">
+                    <strong>Max Connections:</strong><br>
+                    <span id="maxConnections">-</span>
+                </div>
+                <div class="limit-item">
+                    <strong>Connection Timeout:</strong><br>
+                    <span id="connectionTimeout">-</span> minutes
+                </div>
+                <div class="limit-item">
+                    <strong>Rate Limit:</strong><br>
+                    <span id="rateLimit">-</span>
+                </div>
+                <div class="limit-item">
+                    <strong>Auto-shutdown:</strong><br>
+                    <span id="autoShutdown">-</span>
+                </div>
+            </div>
+            <div class="stats" id="currentStats">
+                <div class="stat-item">
+                    <div class="stat-value" id="activeConnections">-</div>
+                    <div class="stat-label">Active Connections</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="yourIP">-</div>
+                    <div class="stat-label">Your IP</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="clientId">-</div>
+                    <div class="stat-label">Your Client ID</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="messageCount">0</div>
+                    <div class="stat-label">Messages Sent</div>
+                </div>
+            </div>
+        </div>
+        
         <div class="controls">
-            <button id="connectBtn" class="btn-connect" onclick="connect()">Connect</button>
-            <button id="disconnectBtn" class="btn-disconnect" onclick="disconnect()" disabled>Disconnect</button>
-            <button class="btn-clear" onclick="clearMessages()">Clear Messages</button>
+            <button id="connectBtn" class="btn-connect" onclick="connect()">🔌 Connect</button>
+            <button id="disconnectBtn" class="btn-disconnect" onclick="disconnect()" disabled>❌ Disconnect</button>
+            <button class="btn-clear" onclick="clearMessages()">🧹 Clear Messages</button>
+            <button class="btn-clear" onclick="checkHealth()">🏥 Health Check</button>
         </div>
         
         <div class="input-group">
             <input type="text" id="messageInput" placeholder="Enter message to send..." 
                    onkeypress="if(event.key==='Enter') sendMessage()" disabled>
-            <button id="sendBtn" class="btn-send" onclick="sendMessage()" disabled>Send Message</button>
+            <button id="sendBtn" class="btn-send" onclick="sendMessage()" disabled>📤 Send Message</button>
         </div>
         
         <div class="messages" id="messages"></div>
         
         <div class="info">
+            <strong>🔒 Security Features:</strong>
+            <br>• Token authentication required for connection
+            <br>• Connection limits and timeouts enforced
+            <br>• Rate limiting prevents message spam
+            <br>• Server auto-shutdown to control costs
+            <br>• All connections logged and monitored
+            <br><br>
             <strong>Instructions:</strong>
-            <br>• Click "Connect" to establish WebSocket connection
-            <br>• Type messages and press Enter or click "Send Message"
-            <br>• Server will echo back your messages with additional info
-            <br>• Watch for heartbeat messages every 30 seconds
-            <br>• Check browser console for detailed logs
+            <br>• Enter valid token and click "Connect"
+            <br>• Server will tell you the current limits
+            <br>• Watch for rate limit warnings
+            <br>• Check Health endpoint for server stats
         </div>
     </div>
 
     <script>
         let ws = null;
         let messageCount = 0;
+        let currentClientId = null;
 
         function updateStatus(status, className) {
             const statusEl = document.getElementById('status');
@@ -147,7 +265,42 @@
             messagesEl.scrollTop = messagesEl.scrollHeight;
         }
 
+        function updateServerLimits(limits, stats) {
+            const limitsEl = document.getElementById('serverLimits');
+            limitsEl.style.display = 'block';
+            
+            document.getElementById('maxConnections').textContent = limits.maxConnections;
+            document.getElementById('connectionTimeout').textContent = limits.connectionTimeoutMinutes;
+            document.getElementById('rateLimit').textContent = 
+                `${limits.rateLimit.maxMessages} messages/${limits.rateLimit.perMinutes}min`;
+            document.getElementById('autoShutdown').textContent = 
+                limits.autoShutdownHours ? `${limits.autoShutdownHours} hours` : 'Disabled';
+            
+            document.getElementById('activeConnections').textContent = stats.activeConnections;
+            document.getElementById('yourIP').textContent = stats.yourIP;
+        }
+
+        function updateStats(data) {
+            if (data.clientId) {
+                currentClientId = data.clientId;
+                document.getElementById('clientId').textContent = data.clientId;
+            }
+            if (data.activeConnections !== undefined) {
+                document.getElementById('activeConnections').textContent = data.activeConnections;
+            }
+            if (data.yourMessageCount !== undefined) {
+                document.getElementById('messageCount').textContent = data.yourMessageCount;
+            }
+        }
+
         function connect() {
+            const token = document.getElementById('tokenInput').value.trim();
+            
+            if (!token) {
+                addMessage('❌ Please enter an authentication token first', 'error');
+                return;
+            }
+
             if (ws && ws.readyState === WebSocket.OPEN) {
                 addMessage('Already connected!', 'system');
                 return;
@@ -155,19 +308,19 @@
 
             updateStatus('Connecting...', 'connecting');
             
-            // Determine WebSocket URL
+            // Determine WebSocket URL with token
             const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-            const wsUrl = `${protocol}//${window.location.host}`;
+            const wsUrl = `${protocol}//${window.location.host}?token=${encodeURIComponent(token)}`;
             
-            addMessage(`Connecting to: ${wsUrl}`, 'system');
+            addMessage(`🔗 Connecting to: ${wsUrl.replace(token, '***')}`, 'system');
             console.log('Connecting to:', wsUrl);
             
             ws = new WebSocket(wsUrl);
 
             ws.onopen = function(event) {
                 console.log('WebSocket connected:', event);
-                updateStatus('Connected', 'connected');
-                addMessage('✅ Connected to server!', 'system');
+                updateStatus('Connected & Authenticated ✅', 'connected');
+                addMessage('✅ Connected and authenticated successfully!', 'system');
                 
                 // Enable controls
                 document.getElementById('connectBtn').disabled = true;
@@ -182,22 +335,37 @@
                 try {
                     const data = JSON.parse(event.data);
                     let content = '';
+                    let messageType = 'received';
                     
                     switch(data.type) {
                         case 'welcome':
-                            content = `🎉 ${data.message} (Client ID: ${data.clientId})`;
+                            content = `🎉 ${data.message}<br>
+                                     📊 Client ID: ${data.clientId}<br>
+                                     🌐 Your IP: ${data.currentStats.yourIP}<br>
+                                     👥 Active Connections: ${data.currentStats.activeConnections}`;
+                            messageType = 'welcome';
+                            updateServerLimits(data.serverLimits, data.currentStats);
+                            updateStats(data);
                             break;
                         case 'echo':
-                            content = `📡 Echo: ${JSON.stringify(data.originalMessage)} | Active connections: ${data.activeConnections}`;
+                            content = `📡 Echo Response:<br>
+                                     📝 Message: ${JSON.stringify(data.originalMessage)}<br>
+                                     👥 Active: ${data.activeConnections} | 📊 Your Messages: ${data.yourMessageCount || 'N/A'}`;
+                            updateStats(data);
                             break;
                         case 'heartbeat':
-                            content = `💓 Heartbeat from server`;
+                            content = `💓 Heartbeat | Active: ${data.activeConnections} | Uptime: ${data.uptime}s`;
+                            updateStats(data);
+                            break;
+                        case 'error':
+                            content = `❌ Server Error: ${data.message}`;
+                            messageType = 'error';
                             break;
                         default:
                             content = `📨 ${JSON.stringify(data)}`;
                     }
                     
-                    addMessage(content, 'received');
+                    addMessage(content, messageType);
                 } catch (error) {
                     addMessage(`📨 Raw: ${event.data}`, 'received');
                 }
@@ -206,7 +374,22 @@
             ws.onclose = function(event) {
                 console.log('WebSocket closed:', event);
                 updateStatus('Disconnected', 'disconnected');
-                addMessage(`❌ Connection closed (Code: ${event.code}, Reason: ${event.reason || 'Unknown'})`, 'system');
+                
+                let reason = 'Unknown';
+                switch(event.code) {
+                    case 1000: reason = 'Normal closure'; break;
+                    case 1001: reason = 'Server going away'; break;
+                    case 1002: reason = 'Protocol error'; break;
+                    case 1003: reason = 'Unsupported data'; break;
+                    case 1006: reason = 'Connection lost'; break;
+                    case 1011: reason = 'Server error'; break;
+                    default: reason = event.reason || `Code ${event.code}`;
+                }
+                
+                addMessage(`❌ Disconnected: ${reason}`, 'system');
+                
+                // Hide server limits
+                document.getElementById('serverLimits').style.display = 'none';
                 
                 // Disable controls
                 document.getElementById('connectBtn').disabled = false;
@@ -217,7 +400,8 @@
 
             ws.onerror = function(error) {
                 console.error('WebSocket error:', error);
-                addMessage('❌ Connection error - check console for details', 'system');
+                addMessage('❌ Connection error - check console and verify token', 'error');
+                addMessage('💡 Common issues: Invalid token, server at capacity, rate limited', 'system');
             };
         }
 
@@ -237,7 +421,7 @@
             }
             
             if (!ws || ws.readyState !== WebSocket.OPEN) {
-                addMessage('Not connected to server', 'system');
+                addMessage('Not connected to server', 'error');
                 return;
             }
             
@@ -245,7 +429,8 @@
             const messageData = {
                 id: messageCount,
                 text: message,
-                clientTimestamp: new Date().toISOString()
+                clientTimestamp: new Date().toISOString(),
+                clientId: currentClientId
             };
             
             console.log('Sending message:', messageData);
@@ -258,12 +443,41 @@
 
         function clearMessages() {
             document.getElementById('messages').innerHTML = '';
-            addMessage('Messages cleared', 'system');
+            addMessage('🧹 Messages cleared', 'system');
         }
 
-        // Auto-connect on page load
+        async function checkHealth() {
+            try {
+                addMessage('🏥 Checking server health...', 'system');
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                addMessage(`🏥 Health Check Results:<br>
+                          📊 Status: ${data.status}<br>
+                          ⏱️ Uptime: ${data.uptime.hours} hours<br>
+                          👥 Connections: ${data.connections.active}/${data.connections.max}<br>
+                          📈 Total Attempts: ${data.connections.total_attempts}<br>
+                          🚫 Rejected: ${data.connections.rejected}<br>
+                          ⏰ Auto-shutdown: ${data.uptime.autoShutdownIn ? 
+                              Math.round(data.uptime.autoShutdownIn / 1000 / 60) + ' min' : 'Disabled'}`, 'system');
+                
+            } catch (error) {
+                addMessage('❌ Health check failed: ' + error.message, 'error');
+            }
+        }
+
+        // Auto-focus token input on page load
         window.addEventListener('load', function() {
-            addMessage('🚀 Test client loaded. Click "Connect" to start.', 'system');
+            addMessage('🚀 Secured WebSocket client loaded', 'system');
+            addMessage('🔑 Enter your authentication token and click "Connect"', 'system');
+            document.getElementById('tokenInput').focus();
+        });
+
+        // Allow Enter key in token field to connect
+        document.getElementById('tokenInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                connect();
+            }
         });
     </script>
 </body>
